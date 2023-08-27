@@ -57,7 +57,7 @@ def fetch_news(name, date_from, date_to):
     code = 'us'
     query = name
     
-    url = 'https://newsapi.org/v2/everything?q={}&from={}&to=()&language=en&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query, date_from, date_to)
+    url = 'https://newsapi.org/v2/everything?q={}&from={}&to=()&language=en&sortBy=popularity&apiKey=a1e91cf9073f4b85aa784fe5f37e6294'.format(query, date_from, date_to)
         
     data = requests.get(url, headers=headers).json()
     # print('------------------------------------------------------------------------------------------------------------------')
@@ -71,10 +71,10 @@ def fetch_news(name, date_from, date_to):
     publish_date = []
     ls_content = []
     print(url, tot_res)
-
-    for i in tqdm(range(1, 6)):
-
-            next_page_url = 'https://newsapi.org/v2/everything?q={}&from=2023-08-25&to=2023-08-26&language=en&page={}&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query, str(i))
+    range_ = tot_res // 100
+    for i in tqdm(range(1, range_)):
+        try:
+            next_page_url = 'https://newsapi.org/v2/everything?q={}&from={}&to={}&language=en&page={}&sortBy=popularity&apiKey=a1e91cf9073f4b85aa784fe5f37e6294'.format(query, date_from, date_to, str(i))
             for j in data['articles']:
 
                     name = j['source']['name'] 
@@ -94,7 +94,9 @@ def fetch_news(name, date_from, date_to):
                     publish_date.append(date)
 
             data = requests.get(next_page_url, headers=headers).json()
-    
+            
+        except:
+            pass
     dic = ({
                 'name': ls_name,
                 'title': ls_title,
@@ -251,9 +253,10 @@ def predict():
     pred = pd.DataFrame(dic)
     predicitions_merged = pd.concat([news, pred], axis=1)
     print(predicitions_merged)
+    print(predicitions_merged.duplicated().sum())
     predicitions_merged['predictions'] = predicitions_merged['predictions'].astype('str')
     # print(type(predicitions_merged.iloc[0,7]))
-    
+    print(predicitions_merged.duplicated().sum())
     predicitions_merged['predictions'].replace(to_replace=['0', '1', '2', '3'],value=['World', 'Sports', 'Business', 'Sci-Fi/Tech'], inplace=True)
     predicitions_merged.drop_duplicates(inplace=True)
     predicitions_merged.fillna('N/A', inplace=True)
@@ -456,9 +459,9 @@ date_to = st.date_input('To date for news articles', value = datetime.date(2023,
 
 if st.button('Fetch!'):
 
-    # fetch_news(name, date_from, date_to)
+    fetch_news(name, date_from, date_to)
 
-    # preprocess()
+    preprocess()
 
     predict()
 
