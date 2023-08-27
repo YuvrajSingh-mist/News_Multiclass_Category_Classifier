@@ -2,6 +2,7 @@ import streamlit as st
 import keras
 import tensorflow as tf
 import requests
+import numpy as np
 import nltk
 import spacy
 from nltk.corpus import stopwords
@@ -10,6 +11,7 @@ import pandas as pd
 import pycountry
 from keras.preprocessing.text import one_hot,Tokenizer
 from keras.utils import pad_sequences
+import datetime
 
 #Downloading some dependencies
 # nltk.download('stopwords')
@@ -40,7 +42,7 @@ def fetch_country_code(name):
 
 #Fetching the news
 
-def fetch_news(name):
+def fetch_news(name, date_from, date_to):
     
     
     
@@ -51,13 +53,14 @@ def fetch_news(name):
 
     global final
     # code = fetch_country_code(country_name)
+    
     code = 'us'
     query = name
     
-    url = 'https://newsapi.org/v2/everything?q={}&from=2023-08-25&to=2023-08-26&language=en&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query)
+    url = 'https://newsapi.org/v2/everything?q={}&from={}&to=()&language=en&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query, date_from, date_to)
         
     data = requests.get(url, headers=headers).json()
-    print('------------------------------------------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------------------------------------------')
 
     tot_res = data['totalResults']
     ls_name = []
@@ -71,7 +74,7 @@ def fetch_news(name):
 
     for i in tqdm(range(1, 6)):
 
-            next_page_url = 'https://newsapi.org/v2/everything?q={}&language=en&page={}&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query, str(i+1))
+            next_page_url = 'https://newsapi.org/v2/everything?q={}&from=2023-08-25&to=2023-08-26&language=en&page={}&sortBy=popularity&apiKey=84c5e76001f14f0ca2651dd86ef80989'.format(query, str(i))
             for j in data['articles']:
 
                     name = j['source']['name'] 
@@ -225,22 +228,60 @@ def preprocess():
 def predict():
     
     preprocessed = pd.read_csv('preprocessed.csv')
+    train_df = pd.read_csv('train_transformed.csv')
+    news = pd.read_csv('news.csv')
     tok = Tokenizer()
-    tok.fit_on_texts(preprocessed['tags'])
+    tok.fit_on_texts(train_df['tags'])
     
-    max_len = 200
+    max_len = 100
     
-    encd_news = tok.texts_to_sequences(preprocesssed['tags'])
+    encd_news = tok.texts_to_sequences(preprocessed['tags'])
     embd_dim = 200
     
     pad_news = pad_sequences(maxlen = max_len, padding='pre', sequences=encd_news)
     
-    model.predict([pad_news], 1024)
     
-name = st.text_input('Enter a keyword that you want your artciles to have!')
-print(name)
-fetch_news(name)
-# print(final)
-preprocess()
+    y_pred = model.predict([pad_news], 1024)
+    y_pred = np.argmax(y_pred, axis=1)
+    y_pred = y_pred.T
+    # print(y_pred)
+    dic = {
+        'predictions': y_pred
+    }
+    pred = pd.DataFrame(dic)
+    predicitions_merged = pd.concat([news, pred], axis=1)
+    print(predicitions_merged)
+    predicitions_merged['predictions'] = predicitions_merged['predictions'].astype('str')
+    # print(type(predicitions_merged.iloc[0,7]))
+    
+    predicitions_merged['predictions'].replace(to_replace=['0', '1', '2', '3'],value=['World', 'Sports', 'Business', 'Sci-Fi/Tech'], inplace=True)
+    predicitions_merged.to_csv('predictions.csv', index=False)
+
+    
+def display():
+    
+    ar = st.progress(0)
+    
+    tabs_titles = ['World', 'Sports', 'Business', 'Sci-Fi/Tech']
+    
+    tab1, tab2, tab3, tab4 = st.tabs(tabs_titles)
+
+    with tab1:
+    
+        for i in range((500)):
+
+            st.markdown("<h1 style='text-align: center; color: white;'>{}</h1>", unsafe_allow_html=True)
+    
+
+name = st.text_input('Enter a keyword that you want your articles to have!')
+date_from = st.date_input('From date for news articles', value = datetime.date(2023, 8, 27), min_value  = datetime.date(2020, 1, 1))
+date_to = st.date_input('To date for news articles', value = datetime.date(2023, 8, 27), min_value  = datetime.date(2020, 1, 1))
+
+
+# fetch_news(name, date_from, date_to)
+
+# preprocess()
 
 predict()
+
+display()
