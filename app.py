@@ -255,33 +255,211 @@ def predict():
     # print(type(predicitions_merged.iloc[0,7]))
     
     predicitions_merged['predictions'].replace(to_replace=['0', '1', '2', '3'],value=['World', 'Sports', 'Business', 'Sci-Fi/Tech'], inplace=True)
+    predicitions_merged.drop_duplicates(inplace=True)
+    predicitions_merged.fillna('N/A', inplace=True)
     predicitions_merged.to_csv('predictions.csv', index=False)
 
     
 def display():
     
-    ar = st.progress(0)
-    
+    bar = st.progress(25)
+    predicitions_merged = pd.read_csv('predictions.csv')
     tabs_titles = ['World', 'Sports', 'Business', 'Sci-Fi/Tech']
     
     tab1, tab2, tab3, tab4 = st.tabs(tabs_titles)
 
     with tab1:
     
-        for i in range((500)):
+        for i in range(predicitions_merged.shape[0]):
+            
+            if predicitions_merged.iloc[i, 7] == 'World':
+                st.markdown("<h4 style='text-align: center; color: white;'>{}</h4>".format(predicitions_merged.iloc[i, 1]), unsafe_allow_html=True)
+                st.divider()
+                
+                col1, col2, col3 = st.columns([5, 5, 3])
+                
+                with col1:
+                    try:
+                        img_url = predicitions_merged.iloc[i, 5]
+                        image = st.image(img_url)
+                    except:
+                        pass
+                
+                with col2:
+                    desc = predicitions_merged.iloc[i, 2]
+                    st.write(desc)
+                    
+                with col3:
+                    date = predicitions_merged.iloc[i, 6]
+                    date = date[:10]
+                    with st.expander('Published'):
+                        st.write(date)
+                    with st.expander('Source'):
+                        st.write(predicitions_merged.iloc[i, 0])
+                    
+                
+                with st.expander('Description'):
+                    
+                    content = predicitions_merged.iloc[i, 2]
+                    st.write(content)
+                
+                with st.expander('Content'):
+                    
+                    content = predicitions_merged.iloc[i, 3]
+                    st.write(content)
+                    
+                with st.expander('Website'):
+                    
+                    url = predicitions_merged.iloc[i, 4]
+                    st.write(url)
+                    
+         
+    with tab2:
+        
+            bar.progress(50)        
+            for i in range((predicitions_merged.shape[0])):
+            
+                if predicitions_merged.iloc[i, 7] == 'Sports':
+                    st.markdown("<h4 style='text-align: center; color: white;'>{}</h4>".format(predicitions_merged.iloc[i, 1]), unsafe_allow_html=True)
+                    st.divider()
 
-            st.markdown("<h1 style='text-align: center; color: white;'>{}</h1>", unsafe_allow_html=True)
+                    col1, col2, col3 = st.columns([5, 5, 3])
+
+                    with col1:
+                        try:
+                            img_url = predicitions_merged.iloc[i, 5]
+                            image = st.image(img_url)
+                        except:
+                            pass
+                    
+                    with col2:
+                        desc = predicitions_merged.iloc[i, 2]
+                        st.write(desc)
+
+                    with col3:
+                        date = predicitions_merged.iloc[i, 6]
+                        date = date[:10]
+                        with st.expander('Published'):
+                            st.write(date)
+                        with st.expander('Source'):
+                            st.write(predicitions_merged.iloc[i, 0])
+
+
+                    with st.expander('Description'):
+
+                        content = predicitions_merged.iloc[i, 2]
+                        st.write(content)
+
+                    with st.expander('Content'):
+
+                        content = predicitions_merged.iloc[i, 3]
+                        st.write(content)
+
+                    with st.expander('Website'):
+
+                        url = predicitions_merged.iloc[i, 4]
+                        st.write(url)
     
+    with tab3:
+            bar.progress(75)        
+            for i in range(predicitions_merged.shape[0]):
+            
+                if predicitions_merged.iloc[i, 7] == 'Business':
+                    st.markdown("<h4 style='text-align: center; color: white;'>{}</h4>".format(predicitions_merged.iloc[i, 1]), unsafe_allow_html=True)
+                    st.divider()
 
+                    col1, col2, col3 = st.columns([5, 5, 3])
+
+                    try:
+                        img_url = predicitions_merged.iloc[i, 5]
+                        image = st.image(img_url)
+                    except:
+                        pass
+                    
+                    with col2:
+                        desc = predicitions_merged.iloc[i, 2]
+                        st.write(desc)
+
+                    with col3:
+                        date = predicitions_merged.iloc[i, 6]
+                        date = date[:10]
+                        with st.expander('Published'):
+                            st.write(date)
+                        with st.expander('Source'):
+                            st.write(predicitions_merged.iloc[i, 0])
+
+
+                    with st.expander('Description'):
+
+                        content = predicitions_merged.iloc[i, 2]
+                        st.write(content)
+
+                    with st.expander('Content'):
+
+                        content = predicitions_merged.iloc[i, 3]
+                        st.write(content)
+
+                    with st.expander('Website'):
+
+                        url = predicitions_merged.iloc[i, 4]
+                        st.write(url)
+    
+    with tab4:
+            bar.progress(100)   
+            for i in range(predicitions_merged.shape[0]):
+            
+                if predicitions_merged.iloc[i, 7] == 'Sci-Fi/Tech':
+                    st.markdown("<h4 style='text-align: center; color: white;'>{}</h4>".format(predicitions_merged.iloc[i, 1]), unsafe_allow_html=True)
+                    st.divider()
+
+                    col1, col2, col3 = st.columns([5, 5, 3])
+
+                    try:
+                        img_url = predicitions_merged.iloc[i, 5]
+                        image = st.image(img_url)
+                    except:
+                        pass
+
+                    with col2:
+                        desc = predicitions_merged.iloc[i, 2]
+                        st.write(desc)
+
+                    with col3:
+                        date = predicitions_merged.iloc[i, 6]
+                        date = date[:10]
+                        with st.expander('Published'):
+                            st.write(date)
+                        with st.expander('Source'):
+                            st.write(predicitions_merged.iloc[i, 0])
+
+
+                    with st.expander('Description'):
+
+                        content = predicitions_merged.iloc[i, 2]
+                        st.write(content)
+
+                    with st.expander('Content'):
+
+                        content = predicitions_merged.iloc[i, 3]
+                        st.write(content)
+
+                    with st.expander('Website'):
+
+                        url = predicitions_merged.iloc[i, 4]
+                        st.write(url)
+    
+                        
+                        
 name = st.text_input('Enter a keyword that you want your articles to have!')
 date_from = st.date_input('From date for news articles', value = datetime.date(2023, 8, 27), min_value  = datetime.date(2020, 1, 1))
 date_to = st.date_input('To date for news articles', value = datetime.date(2023, 8, 27), min_value  = datetime.date(2020, 1, 1))
 
+if st.button('Fetch!'):
 
-# fetch_news(name, date_from, date_to)
+    # fetch_news(name, date_from, date_to)
 
-# preprocess()
+    # preprocess()
 
-predict()
+    predict()
 
-display()
+    display()
